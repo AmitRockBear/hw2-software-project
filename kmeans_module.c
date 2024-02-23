@@ -72,6 +72,7 @@ double** stdin_to_matrix(int rows, int columns) {
 }
 
 double* deep_copy_vector(double* vector, int dimension) {
+  int j;
   double* copied_vector;
 
   copied_vector = calloc(dimension, sizeof(double));
@@ -116,9 +117,9 @@ double** init_centroids(double** vectors, int vectors_num, int centroids_num, in
 
     // Calculate min_distance
     for (j=0; j<vectors_num; j++) {
-      min_distance = distance_from_centroid(vectors[j], centroids[0], dimension);
+      min_distance = calculate_distance(vectors[j], centroids[0], dimension);
       for (k=1; k<i; k++) {
-        distance =  distance_from_centroid(vectors[j], centroids[k], dimension);
+        distance =  calculate_distance(vectors[j], centroids[k], dimension);
         if (distance < min_distance) {
           min_distance = distance;
         }
@@ -137,7 +138,7 @@ double** init_centroids(double** vectors, int vectors_num, int centroids_num, in
 
     sum = 0;
     for (j=0; j<vectors_num; j++) {
-      sum = sum + probabilities[j]
+      sum = sum + probabilities[j];
       probabilities[j] = sum;
     }
 
@@ -152,8 +153,11 @@ double** init_centroids(double** vectors, int vectors_num, int centroids_num, in
     centroids[i] = deep_copy_vector(vectors[chosen], dimension);
     if (centroids[i] == NULL) {
       free_array_of_pointers(centroids, i);
+      free(probabilities);
       return NULL;
     }
+
+    free(probabilities);
   }
 
   return centroids;
@@ -343,7 +347,7 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    centroids = deep_copy_matrix(vectors, N, K, d);
+    centroids = init_centroids(vectors, N, K, d);
     if (centroids == NULL) {
       free_array_of_pointers(vectors, N);
       printf("An Error Has Occurred");
