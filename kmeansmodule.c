@@ -1,9 +1,41 @@
 
 #define _GNU_SOURCE
+#define PY_SSIZE_T_CLEAN
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#define eps 0.001
+# include <Python.h>
+
+static PyObject* fit(PyObject *self, PyObject *args)
+{
+    int K, N, d, iter;
+    double **vectors, **centroids;
+    if(!PyArg_ParseTuple(args, "iiiidoo", &K, &N, &d, &iter, &vectors, &centroids)) {
+        return NULL;
+    }
+
+    return Py_BuildValue("o", kmeans(K, N, d, iter, vectors, centroids));
+}
+
+static PyMethodDef mykmeansspMethods[] = {
+    {
+      "fit",
+      (PyCFunction) fit,
+      METH_VARARGS,
+      PyDoc_STR("Calculating centroids convergence according to the K-means algorithm")
+    },
+    {NULL, NULL, 0, NULL}
+};
+
+static struct PyModuleDef mykmeansspModule = {
+    PyModuleDef_HEAD_INIT,
+    "mykmeanssp",
+    NULL,
+    -1,
+    mykmeansspMethods
+};
+
+
 
 void free_array_of_pointers(double** arr, int length) {
   int i;
@@ -219,7 +251,7 @@ int isInteger(const char *str) {
     return 1;
 }
 
-int main(int argc, char* argv[]) {
+int kmeans(int K, int N, int d, int iter, double** vectors, double** centroids) {
     int K, N, d, iter, res;
     double **vectors, **centroids;
 
