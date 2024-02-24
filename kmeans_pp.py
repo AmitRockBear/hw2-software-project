@@ -135,16 +135,17 @@ def main(K, iter, eps, file_name_1, file_name_2):
     merged_data_sorted = merged_data_sorted.astype(float)
 
     merged_data_sorted_without_first_column = merged_data_sorted.iloc[:, 1:]
-
-    vectors = merged_data_sorted.to_numpy()
+    
+    keys = merged_data_sorted.iloc[:, 0].tonumpy()
+    vectors = merged_data_sorted_without_first_column.to_numpy()
     dimension = vectors.shape[1]
     np.random.seed(0)
     np.random.choice()
     centroids, centroids_indexes = init_centroids(vectors, K)
     d = vectors.shape[1]
     new_centroids = kmeanspp(K, len(vectors), d, iter, eps, vectors, centroids)
-    for item in centroids_indexes:
-        print(','.join(["%.4f" % num for num in item]))
+    for key_index in centroids_indexes:
+        print(','.join(keys[key_index]))
     for item in new_centroids:
         print(','.join(["%.4f" % num for num in item]))
 
