@@ -11,8 +11,7 @@ def distance(vector1, vector2, d):
         sum+=(vector1[i]-vector2[i])**2
     return math.sqrt(sum)
 
-# validation function for user arguments
-def validate_params():
+def validate_params(N):
     if not (len(sys.argv) != 5 and len(sys.argv) != 6):
         try:
             K = int(sys.argv[1])
@@ -124,12 +123,10 @@ def kmeanspp(N, K, iter, eps, vectors, centroids):
         raise
     return centroids
 
-
-
-def main(K, iter, eps, file_name_1, file_name_2): 
+def get_keys_and_vectors_from_files(file_name_1, file_name_2):
     data1 = pd.read_csv(file_name_1)
     data2 = pd.read_csv(file_name_2)
-
+    
     merged_data = pd.merge(data1, data2, on=data1.columns[0], how='inner')
     merged_data_sorted = merged_data.sort_values(by=merged_data.columns[0])
     merged_data_sorted = merged_data_sorted.astype(float)
@@ -138,6 +135,11 @@ def main(K, iter, eps, file_name_1, file_name_2):
     
     keys = merged_data_sorted.iloc[:, 0].tonumpy()
     vectors = merged_data_sorted_without_first_column.to_numpy()
+
+    return keys, vectors
+
+
+def main(K, iter, eps, keys, vectors): 
     dimension = vectors.shape[1]
     np.random.seed(0)
     np.random.choice()
@@ -152,9 +154,10 @@ def main(K, iter, eps, file_name_1, file_name_2):
 
 if __name__ == "__main__":
     try:
-        result = validate_params()
+        keys, vectors = get_keys_and_vectors_from_files(file_name_1, file_name_2)
+        result = validate_params(len(vectors))
         if not result == None:
             K, iter, eps, file_name_1, file_name_2 = result
-            main(K, iter, eps, file_name_1, file_name_2)
+            main(K, iter, eps, keys, vectors)
     except:
          print("An Error Has Occurred")
