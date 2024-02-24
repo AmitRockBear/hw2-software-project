@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <time.h>
 #define eps 0.001
 
 void free_array_of_pointers(double** arr, int length) {
@@ -71,96 +70,28 @@ double** stdin_to_matrix(int rows, int columns) {
   return vectors;
 }
 
-double* deep_copy_vector(double* vector, int dimension) {
-  int j;
-  double* copied_vector;
+double** deep_copy_matrix(double** copied_matrix, int rows, int columns) {
+  int i, j;
+  double **new_matrix;
 
-  copied_vector = calloc(dimension, sizeof(double));
-  if (copied_vector == NULL) {
-    return NULL;
-  }
-
-  for (j=0; j<dimension; j++) {
-    copied_vector[j] = vector[j];
-  }
-
-  return copied_vector;
-}
-
-double** init_centroids(double** vectors, int vectors_num, int centroids_num, int dimension) {
-  double distance, min_distance, sum;
-  int k;
-  int i, j, chosen, random_number;
-  double **centroids, *probabilities;
-  
-  srand(time(NULL));
-  
-  chosen = rand() % vectors_num;
-
-  centroids = calloc((size_t)centroids_num, sizeof(double *));
-  if (centroids == NULL) {
+  new_matrix = calloc((size_t)rows, sizeof(double *));
+  if (new_matrix == NULL) {
       return NULL;
   }
 
-  centroids[0] = deep_copy_vector(vectors[chosen], dimension);
-  if (centroids[0] == NULL) {
-    free(centroids);
-    return NULL;
-  }
-
-  for (i=1; i<centroids_num; i++) {
-    probabilities = calloc((size_t)vectors_num, sizeof(double *));
-    if (probabilities == NULL) {
-        free_array_of_pointers(centroids, i);
+  for (i=0; i<rows; i++) {
+      new_matrix[i] = calloc(columns, sizeof(double));
+      if (new_matrix[i] == NULL) {
+        free_array_of_pointers(new_matrix, i);
         return NULL;
-    }
-
-    // Calculate min_distance
-    for (j=0; j<vectors_num; j++) {
-      min_distance = calculate_distance(vectors[j], centroids[0], dimension);
-      for (k=1; k<i; k++) {
-        distance =  calculate_distance(vectors[j], centroids[k], dimension);
-        if (distance < min_distance) {
-          min_distance = distance;
-        }
       }
-      probabilities[j] = min_distance;
-    }
 
-    sum = 0;
-    for (j=0; j<vectors_num; j++) {
-      sum = sum + probabilities[j];
-    }
-
-    for (j=0; j<vectors_num; j++) {
-      probabilities[j] = probabilities[j] / sum;
-    }
-
-    sum = 0;
-    for (j=0; j<vectors_num; j++) {
-      sum = sum + probabilities[j];
-      probabilities[j] = sum;
-    }
-
-    random_number = rand() % 1;
-    for (j=0; j<vectors_num; j++) {
-      if (random_number < probabilities[j]) {
-        chosen = j;
-        break;
+      for (j=0; j<columns; j++) {
+        new_matrix[i][j] = copied_matrix[i][j];
       }
-    }
-
-    centroids[i] = deep_copy_vector(vectors[chosen], dimension);
-    if (centroids[i] == NULL) {
-      free_array_of_pointers(centroids, i);
-      free(probabilities);
-      return NULL;
-    }
-
-    free(probabilities);
   }
 
-  return centroids;
+  return new_matrix;
 }
 
 int find_closest_centroid_to_vector_index(double* vector, int vector_size, double** centroids, int centroids_num) {
@@ -347,7 +278,7 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    centroids = init_centroids(vectors, N, K, d);
+    centroids = deep_copy_matrix(vectors, K, d);
     if (centroids == NULL) {
       free_array_of_pointers(vectors, N);
       printf("An Error Has Occurred");
