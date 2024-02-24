@@ -140,15 +140,14 @@ double** kmeans(int K, int N, int d, int iter, double eps, double** vectors, dou
     return centroids;
 }
 
-static PyObject* fit(PyObject *self, PyObject *args)
-{
+static PyObject* fit(PyObject *self, PyObject *args) {
     int K, N, d, iter;
     double eps, **vectors, **centroids;
     if(!PyArg_ParseTuple(args, "iiiiddoo", &K, &N, &d, &iter, &eps, &vectors, &centroids)) {
         return NULL;
     }
 
-    return Py_BuildValue("o", kmeans(K, N, d, iter, vectors, centroids));
+    return Py_BuildValue("o", kmeans(K, N, d, iter, eps, vectors, centroids));
 }
 
 static PyMethodDef mykmeansspMethods[] = {
@@ -156,7 +155,17 @@ static PyMethodDef mykmeansspMethods[] = {
       "fit",
       (PyCFunction) fit,
       METH_VARARGS,
-      PyDoc_STR("Calculating centroids convergence according to the K-means algorithm")
+      PyDoc_STR(
+        "Perform some operation using K-means algorithm. \
+        Input: \
+        K : int - The number of centroids. \
+        N : int - The number of data points. \
+        d : int - The dimensionality of the data points. \
+        iter : int - The maximum number of iterations for the algorithm. \
+        eps : float - The threshold for convergence. \   
+        vectors : double** - A 2D list representing the input data points. Each inner list represents a data point and should have 'd' elements. \
+        centroids : double** - A 2D list representing the initial centroids for the clusters. It should have 'K' inner lists, each representing a centroid point and should have 'd' elements."
+      )
     },
     {NULL, NULL, 0, NULL}
 };
