@@ -144,8 +144,9 @@ def main(K, iter, eps, file_name_1, file_name_2):
     centroids, centroids_indexes = init_centroids(vectors, K)
     d = vectors.shape[1]
     new_centroids = kmeanspp(K, len(vectors), d, iter, eps, vectors, centroids)
-    for key_index in centroids_indexes:
-        print(','.join(keys[key_index]))
+
+    centroids_keys = [keys[key_index] for key_index in centroids_indexes]
+    print(','.join(centroids_keys))
     for item in new_centroids:
         print(','.join(["%.4f" % num for num in item]))
 
