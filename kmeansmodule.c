@@ -156,15 +156,16 @@ static PyMethodDef mykmeansspMethods[] = {
       (PyCFunction) fit,
       METH_VARARGS,
       PyDoc_STR(
-        "Perform some operation using K-means algorithm. \
-        Input: \
-        K : int - The number of centroids. \
-        N : int - The number of data points. \
-        d : int - The dimensionality of the data points. \
-        iter : int - The maximum number of iterations for the algorithm. \
-        eps : float - The threshold for convergence. \   
-        vectors : double** - A 2D list representing the input data points. Each inner list represents a data point and should have 'd' elements. \
-        centroids : double** - A 2D list representing the initial centroids for the clusters. It should have 'K' inner lists, each representing a centroid point and should have 'd' elements."
+        "Perform some operation using K-means algorithm.\n \
+        Input:\n \
+        K : int - The number of centroids.\n \
+        N : int - The number of data points.\n \
+        d : int - The dimensionality of the data points.\n \
+        iter : int - The maximum number of iterations for the algorithm.\n \
+        eps : float - The threshold for convergence.\n \
+        vectors : double** - A 2D list representing the input data points. Each inner list represents a data point and should have 'd' elements.\n \
+        centroids : double** - A 2D list representing the initial centroids for the clusters. It should have 'K' inner lists, each representing a centroid point and should have 'd' elements.\n \
+        "
       )
     },
     {NULL, NULL, 0, NULL}
