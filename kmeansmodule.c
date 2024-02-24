@@ -9,8 +9,8 @@
 static PyObject* fit(PyObject *self, PyObject *args)
 {
     int K, N, d, iter;
-    double **vectors, **centroids;
-    if(!PyArg_ParseTuple(args, "iiiidoo", &K, &N, &d, &iter, &vectors, &centroids)) {
+    double eps, **vectors, **centroids;
+    if(!PyArg_ParseTuple(args, "iiiiddoo", &K, &N, &d, &iter, &eps, &vectors, &centroids)) {
         return NULL;
     }
 
@@ -35,7 +35,15 @@ static struct PyModuleDef mykmeansspModule = {
     mykmeansspMethods
 };
 
-
+PyMODINIT_FUNC PyInit_mykmeanssp(void)
+{
+    PyObject *m;
+    m = PyModule_Create(&mykmeansspModule);
+    if (!m) {
+        return NULL;
+    }
+    return m;
+}
 
 void free_array_of_pointers(double** arr, int length) {
   int i;
@@ -55,75 +63,6 @@ double calculate_distance(double* vec1, double* vec2, int size) {
   }
 
   return sqrt(sum);
-}
-
-double** stdin_to_matrix(int rows, int columns) {
-  double **vectors;
-  int line_count, d_counter;
-  char *line, *start_iterator, *end_iterator;
-  size_t len;
-  
-  vectors = (double**)calloc(rows, sizeof(double *));
-  if (vectors == NULL) {
-      return NULL;
-  }
-
-  len = 0;
-  line = NULL;
-  line_count = 0;
-  while (getline(&line, &len, stdin) != -1 && line_count < rows) {
-      vectors[line_count] = calloc(columns, sizeof(double));
-      if (vectors[line_count] == NULL) {
-        free_array_of_pointers(vectors, line_count);
-        free(line);
-        return NULL;
-      }
-
-      start_iterator = line;
-      end_iterator = line;
-      d_counter = 0;
-      while(*end_iterator != '\n' && *end_iterator != '\0') {
-        while(*end_iterator != ',' && *end_iterator != '\n' && *end_iterator != '\0') {
-          end_iterator++;
-        }
-        vectors[line_count][d_counter] = strtod(start_iterator, NULL);
-        if (*end_iterator != '\n' && *end_iterator != '\0') {
-          end_iterator++;
-          start_iterator = end_iterator;
-        }
-        d_counter++;
-      }
-
-      line_count++;
-  }
-
-  free(line);
-
-  return vectors;
-}
-
-double** deep_copy_matrix(double** copied_matrix, int rows, int columns) {
-  int i, j;
-  double **new_matrix;
-
-  new_matrix = calloc((size_t)rows, sizeof(double *));
-  if (new_matrix == NULL) {
-      return NULL;
-  }
-
-  for (i=0; i<rows; i++) {
-      new_matrix[i] = calloc(columns, sizeof(double));
-      if (new_matrix[i] == NULL) {
-        free_array_of_pointers(new_matrix, i);
-        return NULL;
-      }
-
-      for (j=0; j<columns; j++) {
-        new_matrix[i][j] = copied_matrix[i][j];
-      }
-  }
-
-  return new_matrix;
 }
 
 int find_closest_centroid_to_vector_index(double* vector, int vector_size, double** centroids, int centroids_num) {
@@ -160,7 +99,7 @@ double* create_new_centroid(double* centroid_sum, int centroid_counter, int cent
   return new_centroid;
 }
 
-int calculate_centroids_convergence(double** centroids, double** vectors, int centroids_num, int centroid_size, int vectors_num, int max_iterations) {
+int calculate_centroids_convergence(double** centroids, double** vectors, int centroids_num, int centroid_size, int vectors_num, int max_iterations, double eps) {
   int iter_couter, closest_centroid_index, i, j, p;
   double max_distance, centroids_distance, **centroids_sum, *counters, *new_centroid_j;
   max_distance = eps + 1;
@@ -225,111 +164,16 @@ int calculate_centroids_convergence(double** centroids, double** vectors, int ce
   return 0;
 }
 
-void print_output(double** centroids, int centroids_num, int centroid_size) {
-  int i, j;
-
-  for (i=0; i<centroids_num; i++) {
-    for (j=0; j<centroid_size; j++) {
-      printf("%.4f",centroids[i][j]);
-      if (j != centroid_size-1)
-        printf(",");
-      else
-        printf("\n");
-    }
-  }
-}
-
-int isInteger(const char *str) {
-    if (*str == '\0')
-        return 0;
-
-    while (*str != '\0') {
-        if (!('0' <= *str && *str <= '9'))
-            return 0;
-        str++;
-    }
-    return 1;
-}
-
-int kmeans(int K, int N, int d, int iter, double** vectors, double** centroids) {
-    int K, N, d, iter, res;
-    double **vectors, **centroids;
-
-    if (argc != 4 && argc != 5) {
-      printf("An Error Has Occurred");
-      return 1;
-    }
-
-    iter = 200;
-
-    if (isInteger(argv[2]) == 0) {
-      printf("Invalid number of points!");
-      return 1;
-    }
-    N = atoi(argv[2]);
-    if (N <= 1) {
-      printf("Invalid number of points!");
-      return 1;
-    }
-
-    if (isInteger(argv[1]) == 0) {
-      printf("Invalid number of clusters!");
-      return 1;
-    }
-    K = atoi(argv[1]);
-    if (K <= 1 || K >= N) {
-      printf("Invalid number of clusters!");
-      return 1;
-    }
-
-    if (isInteger(argv[3]) == 0) {
-      printf("Invalid dimension of point!");
-      return 1;
-    }
-    d = atoi(argv[3]);
-    if (d < 1) {
-      printf("Invalid dimension of point!");
-      return 1;
-    }
-
-    if (argc == 5) {
-      if (isInteger(argv[4]) == 0) {
-        printf("Invalid maximum iteration!");
-        return 1;
-      }
-      iter = atoi(argv[4]);
-      if (iter <= 1 || iter >= 1000) {
-        printf("Invalid maximum iteration!");
-        return 1;
-      }
-    }
-
-    vectors = stdin_to_matrix(N, d);
-    if (vectors == NULL) {
-      printf("An Error Has Occurred");
-      return 1;
-    }
-
-    centroids = deep_copy_matrix(vectors, K, d);
-    if (centroids == NULL) {
-      free_array_of_pointers(vectors, N);
-      printf("An Error Has Occurred");
-      return 1;
-    }
-
-    res = calculate_centroids_convergence(centroids, vectors, K, d, N, iter);
+double** kmeans(int K, int N, int d, int iter, double eps, double** vectors, double** centroids) {
+    res = calculate_centroids_convergence(centroids, vectors, K, d, N, iter, eps);
     if (res == 1) {
       free_array_of_pointers(vectors, N);
       free_array_of_pointers(centroids, K);
-      printf("An Error Has Occurred");
-      return 1;
+      return NULL;
     }
 
-    print_output(centroids, K, d);
-
     free_array_of_pointers(vectors, N);
-    free_array_of_pointers(centroids, K);
 
-    return 0;
+    return centroids;
 }
 
