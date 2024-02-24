@@ -6,45 +6,6 @@
 #include <math.h>
 #include <Python.h>
 
-static PyObject* fit(PyObject *self, PyObject *args)
-{
-    int K, N, d, iter;
-    double eps, **vectors, **centroids;
-    if(!PyArg_ParseTuple(args, "iiiiddoo", &K, &N, &d, &iter, &eps, &vectors, &centroids)) {
-        return NULL;
-    }
-
-    return Py_BuildValue("o", kmeans(K, N, d, iter, vectors, centroids));
-}
-
-static PyMethodDef mykmeansspMethods[] = {
-    {
-      "fit",
-      (PyCFunction) fit,
-      METH_VARARGS,
-      PyDoc_STR("Calculating centroids convergence according to the K-means algorithm")
-    },
-    {NULL, NULL, 0, NULL}
-};
-
-static struct PyModuleDef mykmeansspModule = {
-    PyModuleDef_HEAD_INIT,
-    "mykmeanssp",
-    NULL,
-    -1,
-    mykmeansspMethods
-};
-
-PyMODINIT_FUNC PyInit_mykmeanssp(void)
-{
-    PyObject *m;
-    m = PyModule_Create(&mykmeansspModule);
-    if (!m) {
-        return NULL;
-    }
-    return m;
-}
-
 void free_array_of_pointers(double** arr, int length) {
   int i;
   for (i=0; i<length; i++) {
@@ -165,6 +126,8 @@ int calculate_centroids_convergence(double** centroids, double** vectors, int ce
 }
 
 double** kmeans(int K, int N, int d, int iter, double eps, double** vectors, double** centroids) {
+    int res;
+
     res = calculate_centroids_convergence(centroids, vectors, K, d, N, iter, eps);
     if (res == 1) {
       free_array_of_pointers(vectors, N);
@@ -175,5 +138,44 @@ double** kmeans(int K, int N, int d, int iter, double eps, double** vectors, dou
     free_array_of_pointers(vectors, N);
 
     return centroids;
+}
+
+static PyObject* fit(PyObject *self, PyObject *args)
+{
+    int K, N, d, iter;
+    double eps, **vectors, **centroids;
+    if(!PyArg_ParseTuple(args, "iiiiddoo", &K, &N, &d, &iter, &eps, &vectors, &centroids)) {
+        return NULL;
+    }
+
+    return Py_BuildValue("o", kmeans(K, N, d, iter, vectors, centroids));
+}
+
+static PyMethodDef mykmeansspMethods[] = {
+    {
+      "fit",
+      (PyCFunction) fit,
+      METH_VARARGS,
+      PyDoc_STR("Calculating centroids convergence according to the K-means algorithm")
+    },
+    {NULL, NULL, 0, NULL}
+};
+
+static struct PyModuleDef mykmeansspModule = {
+    PyModuleDef_HEAD_INIT,
+    "mykmeanssp",
+    NULL,
+    -1,
+    mykmeansspMethods
+};
+
+PyMODINIT_FUNC PyInit_mykmeanssp(void)
+{
+    PyObject *m;
+    m = PyModule_Create(&mykmeansspModule);
+    if (!m) {
+        return NULL;
+    }
+    return m;
 }
 
