@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-# include <Python.h>
+#include <Python.h>
 
 static PyObject* fit(PyObject *self, PyObject *args)
 {

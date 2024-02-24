@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import numpy as np
 import math
+import mykmeanssp
 
 def distance(vector1, vector2, d):
     sum = 0
@@ -78,12 +79,13 @@ def inner_join_files_data(filepath1, filepath2):
 
 def init_centroids(vectors, centroids_num):
   centroids = []
+  centroids_indexes = []
   shape = vectors.shape
   vectors_num = shape[0]
 
   chosen = np.random.choice(np.arange(0, vectors_num))
   centroids.append(vectors[chosen])
-
+  centroids_indexes.append(chosen)
   for i in range(1, centroids_num):
     probabilities = []
 
@@ -112,11 +114,17 @@ def init_centroids(vectors, centroids_num):
         break
 
     centroids.append(np.copy(vectors[chosen]))
-   
-  return centroids
+    centroids_indexes.append(chosen)
+
+  return centroids, centroids_indexes
 
 def kmeanspp(N, K, iter, eps, vectors, centroids):
-    pass
+    centroids = mykmeanssp.fit(N, K, iter, eps, vectors, centroids)
+    if centroids == None:
+        raise
+    return centroids
+
+
 
 def main(K, iter, eps, file_name_1, file_name_2): 
     data1 = pd.read_csv(file_name_1)
@@ -126,13 +134,19 @@ def main(K, iter, eps, file_name_1, file_name_2):
     merged_data_sorted = merged_data.sort_values(by=merged_data.columns[0])
     merged_data_sorted = merged_data_sorted.astype(float)
 
+    merged_data_sorted_without_first_column = merged_data_sorted.iloc[:, 1:]
+
     vectors = merged_data_sorted.to_numpy()
     dimension = vectors.shape[1]
     np.random.seed(0)
     np.random.choice()
-    centroids = init_centroids(vectors, K)
+    centroids, centroids_indexes = init_centroids(vectors, K)
     d = vectors.shape[1]
-    kmeanspp(K, len(vectors), d, iter, eps, vectors, centroids)
+    new_centroids = kmeanspp(K, len(vectors), d, iter, eps, vectors, centroids)
+    for item in centroids_indexes:
+        print(','.join(["%.4f" % num for num in item]))
+    for item in new_centroids:
+        print(','.join(["%.4f" % num for num in item]))
 
 if __name__ == "__main__":
     try:
