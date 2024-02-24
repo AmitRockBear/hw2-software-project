@@ -12,64 +12,65 @@ def distance(vector1, vector2, d):
     return math.sqrt(sum)
 
 def validate_params(N):
-    if not (len(sys.argv) != 5 and len(sys.argv) != 6):
+    try:
+        K = int(sys.argv[1])
+    except ValueError:
+        print("Invalid number of clusters!")
+        return
+    
+    iter = 300 
+    if len(sys.argv) == 6:
         try:
-            K = int(sys.argv[1])
-        except ValueError:
-            print("Invalid number of clusters!")
-            return
-        
-        iter = 300 
-        if len(sys.argv) == 6:
-            try:
-                iter = int(sys.argv[2])
-            except:
-                print("Invalid maximum iteration!")
-                return
-        
-        try:
-            if len(sys.argv) == 6:
-                eps = float(sys.argv[3])
-            else:
-                eps = float(sys.argv[2])
-        except ValueError:
-            # add restriction on eps
-            return
-        
-        try:
-            if len(sys.argv) == 6:
-                file_name_1 = str(sys.argv[4])
-            else:
-                file_name_1 = str(sys.argv[3])
-        except ValueError:
-            return
-
-        try:
-            if len(sys.argv) == 6:
-                file_name_2 = str(sys.argv[5])
-            else:
-                file_name_2 = str(sys.argv[4])
-        except ValueError:
-            return
-
-        if (K <= 1 or K >=N):
-            print("Invalid number of clusters!")
-            return
-        if (iter <= 1 or iter >= 1000):
+            iter = int(sys.argv[2])
+        except:
             print("Invalid maximum iteration!")
             return
-        file1_path_Ext = os.path.splitext(file_name_1)
-        file2_path_Ext = os.path.splitext(file_name_2)
-
-        if file1_path_Ext[1] != ".txt" or \
-            file1_path_Ext[1] != ".csv" or \
-            file2_path_Ext[1] != ".txt" or \
-            file2_path_Ext[1] != ".csv":
-            return
-        return(K, iter, eps, file_name_1, file_name_2)
-    else:
-        raise
     
+    try:
+        if len(sys.argv) == 6:
+            eps = float(sys.argv[3])
+        else:
+            eps = float(sys.argv[2])
+    except ValueError:
+        # add restriction on eps
+        return
+
+    if (K <= 1 or K >=N):
+        print("Invalid number of clusters!")
+        return
+    if (iter <= 1 or iter >= 1000):
+        print("Invalid maximum iteration!")
+        return
+    return K, iter, eps
+    
+def validate_files():
+    try:
+        if len(sys.argv) == 6:
+            file_name_1 = str(sys.argv[4])
+        else:
+            file_name_1 = str(sys.argv[3])
+    except ValueError:
+        return
+
+    try:
+        if len(sys.argv) == 6:
+            file_name_2 = str(sys.argv[5])
+        else:
+            file_name_2 = str(sys.argv[4])
+    except ValueError:
+        return
+
+    file1_path_Ext = os.path.splitext(file_name_1)
+    file2_path_Ext = os.path.splitext(file_name_2)
+
+    if file1_path_Ext[1] != ".txt" or \
+        file1_path_Ext[1] != ".csv" or \
+        file2_path_Ext[1] != ".txt" or \
+        file2_path_Ext[1] != ".csv":
+        return
+    
+    return file_name_1, file_name_2
+
 def inner_join_files_data(filepath1, filepath2):
     data1 = pd.read_csv(filepath1)
     data2 = pd.read_csv(filepath2)
@@ -138,7 +139,6 @@ def get_keys_and_vectors_from_files(file_name_1, file_name_2):
 
     return keys, vectors
 
-
 def main(K, iter, eps, keys, vectors): 
     dimension = vectors.shape[1]
     np.random.seed(0)
@@ -154,10 +154,15 @@ def main(K, iter, eps, keys, vectors):
 
 if __name__ == "__main__":
     try:
-        keys, vectors = get_keys_and_vectors_from_files(file_name_1, file_name_2)
-        result = validate_params(len(vectors))
-        if not result == None:
-            K, iter, eps, file_name_1, file_name_2 = result
-            main(K, iter, eps, keys, vectors)
+        if len(sys.argv) != 5 and len(sys.argv) != 6:
+            raise
+        files_result = validate_files()
+        if not files_result == None:
+            file_name_1, file_name_2 = files_result
+            keys, vectors = get_keys_and_vectors_from_files(file_name_1, file_name_2)
+            params_result = validate_params(len(vectors))
+            if not params_result == None:
+                K, iter, eps, file_name_1, file_name_2 = params_result
+                main(K, iter, eps, keys, vectors)
     except:
          print("An Error Has Occurred")
