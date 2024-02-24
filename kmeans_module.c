@@ -109,7 +109,7 @@ double** init_centroids(double** vectors, int vectors_num, int centroids_num, in
   }
 
   for (i=1; i<centroids_num; i++) {
-    probabilities = calloc((size_t)vectors, sizeof(double *));
+    probabilities = calloc((size_t)vectors_num, sizeof(double *));
     if (probabilities == NULL) {
         free_array_of_pointers(centroids, i);
         return NULL;
