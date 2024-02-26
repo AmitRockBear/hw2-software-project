@@ -17,11 +17,13 @@ void free_array_of_pointers(double** arr, int length) {
 double calculate_distance(double* vec1, double* vec2, int size) {
   int i;
   double sum;
+  printf("calculate_distance starting");
   
   sum = 0;
   for (i=0; i<size; i++) {
     sum += pow(vec1[i]-vec2[i], 2);
   }
+  printf("calculate_distance ending");
 
   return sqrt(sum);
 }
@@ -29,6 +31,7 @@ double calculate_distance(double* vec1, double* vec2, int size) {
 int find_closest_centroid_to_vector_index(double* vector, int vector_size, double** centroids, int centroids_num) {
   int j, min_j;
   double min_distance, distance_from_centroid;
+  printf("find_closest_centroid_to_vector_index starting");
 
   min_j = 0;
   min_distance = calculate_distance(vector, centroids[0], vector_size);
@@ -40,6 +43,7 @@ int find_closest_centroid_to_vector_index(double* vector, int vector_size, doubl
       min_j = j;
     }
   }
+  printf("find_closest_centroid_to_vector_index ending");
 
   return min_j;
 }
@@ -47,15 +51,19 @@ int find_closest_centroid_to_vector_index(double* vector, int vector_size, doubl
 double* create_new_centroid(double* centroid_sum, int centroid_counter, int centroid_size) {
   int p;
   double *new_centroid;
+  printf("create_new_centroid starting");
 
   new_centroid = calloc(centroid_size, sizeof(double));
   if (new_centroid == NULL) {
+  printf("create_new_centroid new_centroid == NULL error");
+
       return NULL;
   }
 
   for (p=0; p<centroid_size; p++) {
     new_centroid[p] = centroid_sum[p] / centroid_counter;
   }
+  printf("create_new_centroid ending");
 
   return new_centroid;
 }
@@ -65,15 +73,18 @@ int calculate_centroids_convergence(double** centroids, double** vectors, int ce
   double max_distance, centroids_distance, **centroids_sum, *counters, *new_centroid_j;
   max_distance = eps + 1;
   iter_couter = 0;
+  printf("calculate_centroids_convergence starting");
 
   while (max_distance >= eps && iter_couter < max_iterations) {
     max_distance = 0;
     centroids_sum = (double**)calloc(centroids_num, sizeof(double *));
     if (centroids_sum == NULL) {
+      printf("calculate_centroids_convergence centroids_sum == NULL failed");
       return 1;
     }
     counters = (double*)calloc(centroids_num, sizeof(double));
     if (counters == NULL) {
+      printf("calculate_centroids_convergence counters == NULL failed");
       free(centroids_sum);
       return 1;
     }
@@ -82,6 +93,7 @@ int calculate_centroids_convergence(double** centroids, double** vectors, int ce
       centroids_sum[j] = calloc(centroid_size, sizeof(double));
 
       if (centroids_sum[j] == NULL) {
+        printf("calculate_centroids_convergence centroids_sum[j] == NULL failed");
         free_array_of_pointers(centroids_sum, j);
         free(counters);
         return 1;
@@ -102,6 +114,7 @@ int calculate_centroids_convergence(double** centroids, double** vectors, int ce
         new_centroid_j = create_new_centroid(centroids_sum[j], counters[j], centroid_size);
 
         if (new_centroid_j == NULL) {
+          printf("calculate_centroids_convergence new_centroid_j == NULL failed");
           free_array_of_pointers(centroids_sum, centroids_num);
           free(counters);
           return 1;
@@ -115,7 +128,7 @@ int calculate_centroids_convergence(double** centroids, double** vectors, int ce
         centroids[j]= new_centroid_j;
       }
     }
-
+    printf("calculate_centroids_convergence freeing memory in end of iteration for loop");
     free_array_of_pointers(centroids_sum, centroids_num);
     free(counters);
 
@@ -127,15 +140,18 @@ int calculate_centroids_convergence(double** centroids, double** vectors, int ce
 
 double** kmeans(int K, int N, int d, int iter, double eps, double** vectors, double** centroids) {
     int res;
+    printf("kmeans starting");
 
     res = calculate_centroids_convergence(centroids, vectors, K, d, N, iter, eps);
     if (res == 1) {
+      printf("kmeans error");
       free_array_of_pointers(vectors, N);
       free_array_of_pointers(centroids, K);
       return NULL;
     }
-
+    printf("kmeans freeing pointers");
     free_array_of_pointers(vectors, N);
+    printf("kmeans returning");
 
     return centroids;
 }
@@ -143,10 +159,12 @@ double** kmeans(int K, int N, int d, int iter, double eps, double** vectors, dou
 static PyObject* fit(PyObject *self, PyObject *args) {
     int K, N, d, iter;
     double eps, **vectors, **centroids;
+    printf("fit starting");
     if(!PyArg_ParseTuple(args, "iiiidoo", &K, &N, &d, &iter, &eps, &vectors, &centroids)) {
+        printf("fit error");
         return NULL;
     }
-
+    printf("fit ending");
     return Py_BuildValue("o", kmeans(K, N, d, iter, eps, vectors, centroids));
 }
 
@@ -181,11 +199,14 @@ static struct PyModuleDef mykmeansspModule = {
 
 PyMODINIT_FUNC PyInit_mykmeanssp(void)
 {
+    printf("PyInit_mykmeanssp starting");
     PyObject *m;
     m = PyModule_Create(&mykmeansspModule);
     if (!m) {
+        printf("PyInit_mykmeanssp error");
         return NULL;
     }
+    printf("PyInit_mykmeanssp ending");
     return m;
 }
 
