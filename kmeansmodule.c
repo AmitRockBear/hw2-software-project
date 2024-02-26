@@ -157,7 +157,7 @@ double** kmeans(int K, int N, int d, int iter, double eps, double** vectors, dou
 }
 
 static PyObject* convert_to_python_list(double **array, int rows, int cols) {
-    PYObject *outer_list, *inner_list, *value;
+    PyObject *outer_list, *inner_list, *value;
     outer_list = PyList_New(rows);
     if (outer_list == NULL) {
       return NULL;
@@ -165,7 +165,7 @@ static PyObject* convert_to_python_list(double **array, int rows, int cols) {
 
     for (int i = 0; i < rows; i++) {
         inner_list = PyList_New(cols);
-        if (inner_list == NULL;) {
+        if (inner_list == NULL) {
             Py_DECREF(outer_list);
             return NULL;
         }
