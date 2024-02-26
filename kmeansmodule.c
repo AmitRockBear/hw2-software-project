@@ -166,14 +166,14 @@ static PyObject* convert_to_python_list(double **array, int rows, int cols) {
     for (int i = 0; i < rows; i++) {
         inner_list = PyList_New(cols);
         if (inner_list == NULL) {
-            Py_DECREF(outer_list);
+            // Py_DECREF(outer_list);
             return NULL;
         }
         for (int j = 0; j < cols; j++) {
             value = PyFloat_FromDouble(array[i][j]);
             if (value == NULL) {
-                Py_DECREF(inner_list);
-                Py_DECREF(outer_list);
+                // Py_DECREF(inner_list);
+                // Py_DECREF(outer_list);
                 return NULL;
             }
             PyList_SET_ITEM(inner_list, j, value);
@@ -210,8 +210,8 @@ static PyObject* fit(PyObject *self, PyObject *args) {
     printf("memory centroids");
     centroids = (double **)calloc(K, sizeof(double *));
     if (centroids == NULL) {
-      Py_DECREF(vectors_obj);
-      Py_DECREF(centroids_obj);
+      // Py_DECREF(vectors_obj);
+      // Py_DECREF(centroids_obj);
       free(vectors);
       return NULL;
     }
@@ -221,8 +221,9 @@ static PyObject* fit(PyObject *self, PyObject *args) {
       vector = PyList_GetItem(vectors_obj, i);
       vectors[i] = calloc(d, sizeof(double));
       if (vectors[i] == NULL) {
-        Py_DECREF(vectors_obj);
-        Py_DECREF(centroids_obj);
+        // Py_DECREF(vector);
+        // Py_DECREF(vectors_obj);
+        // Py_DECREF(centroids_obj);
         free_array_of_pointers(vectors, i);
         free(centroids);
         return NULL;
@@ -237,8 +238,10 @@ static PyObject* fit(PyObject *self, PyObject *args) {
       centroid = PyList_GetItem(centroids_obj, i);
       centroids[i] = calloc(d, sizeof(double));
       if (vectors[i] == NULL) {
-        Py_DECREF(vectors_obj);
-        Py_DECREF(centroids_obj);
+        // Py_DECREF(vector);
+        // Py_DECREF(centroid);
+        // Py_DECREF(vectors_obj);
+        // Py_DECREF(centroids_obj);
         free_array_of_pointers(vectors, N);
         free_array_of_pointers(centroids, i);
         return NULL;
@@ -251,9 +254,11 @@ static PyObject* fit(PyObject *self, PyObject *args) {
     printf("Before kmeans");
     centroids = kmeans(K, N, d, iter, eps, vectors, centroids);
     printf("After kmeans");
-
-    Py_DECREF(vectors_obj);
-    Py_DECREF(centroids_obj);
+    
+    // Py_DECREF(vector);
+    // Py_DECREF(centroid);
+    // Py_DECREF(vectors_obj);
+    // Py_DECREF(centroids_obj);
 
     printf("convert_to_python_list before");
     new_centroids_obj = convert_to_python_list(centroids, K, d);
