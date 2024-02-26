@@ -143,7 +143,7 @@ double** kmeans(int K, int N, int d, int iter, double eps, double** vectors, dou
 static PyObject* fit(PyObject *self, PyObject *args) {
     int K, N, d, iter;
     double eps, **vectors, **centroids;
-    if(!PyArg_ParseTuple(args, "iiiiddoo", &K, &N, &d, &iter, &eps, &vectors, &centroids)) {
+    if(!PyArg_ParseTuple(args, "iiiidoo", &K, &N, &d, &iter, &eps, &vectors, &centroids)) {
         return NULL;
     }
 

@@ -142,11 +142,10 @@ def get_keys_and_vectors_from_files(file_name_1, file_name_2):
 def main(K, iter, eps, keys, vectors): 
     dimension = vectors.shape[1]
     np.random.seed(0)
-    np.random.choice()
+    
     centroids, centroids_indexes = init_centroids(vectors, K)
     d = vectors.shape[1]
     new_centroids = call_c_kmeans(K, len(vectors), d, iter, eps, vectors, centroids)
-
     centroids_keys = [keys[key_index] for key_index in centroids_indexes]
     print(','.join(centroids_keys))
     for item in new_centroids:
