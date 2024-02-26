@@ -119,7 +119,7 @@ def init_centroids(vectors, centroids_num):
   return centroids, centroids_indexes
 
 def call_c_kmeans(N, K, d, iter, eps, vectors, centroids):
-    centroids = mykmeanssp.fit(N, K, iter, eps, vectors, centroids)
+    centroids = mykmeanssp.fit(K, N, iter, eps, vectors, centroids)
     if centroids == None:
         raise
     return centroids
