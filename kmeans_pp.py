@@ -118,7 +118,7 @@ def init_centroids(vectors, centroids_num):
 
   return centroids, centroids_indexes
 
-def call_c_kmeans(N, K, iter, eps, vectors, centroids):
+def call_c_kmeans(N, K, d, iter, eps, vectors, centroids):
     centroids = mykmeanssp.fit(N, K, iter, eps, vectors, centroids)
     if centroids == None:
         raise
@@ -145,7 +145,7 @@ def main(K, iter, eps, keys, vectors):
     
     centroids, centroids_indexes = init_centroids(vectors, K)
     d = vectors.shape[1]
-    new_centroids = call_c_kmeans(K, len(vectors), d, iter, eps, vectors, centroids)
+    new_centroids = call_c_kmeans(len(vectors), K, d, iter, eps, vectors, centroids)
     centroids_keys = [keys[key_index] for key_index in centroids_indexes]
     print(','.join(centroids_keys))
     for item in new_centroids:
