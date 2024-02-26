@@ -156,16 +156,119 @@ double** kmeans(int K, int N, int d, int iter, double eps, double** vectors, dou
     return centroids;
 }
 
+static PyObject* convert_to_python_list(double **array, int rows, int cols) {
+    PYObject *outer_list, *inner_list, *value;
+    outer_list = PyList_New(rows);
+    if (outer_list == NULL) {
+      return NULL;
+    }
+
+    for (int i = 0; i < rows; i++) {
+        inner_list = PyList_New(cols);
+        if (inner_list == NULL;) {
+            Py_DECREF(outer_list);
+            return NULL;
+        }
+        for (int j = 0; j < cols; j++) {
+            value = PyFloat_FromDouble(array[i][j]);
+            if (value == NULL) {
+                Py_DECREF(inner_list);
+                Py_DECREF(outer_list);
+                return NULL;
+            }
+            PyList_SET_ITEM(inner_list, j, value);
+        }
+        PyList_SET_ITEM(outer_list, i, inner_list);
+    }
+
+    return outer_list;
+}
+
 static PyObject* fit(PyObject *self, PyObject *args) {
-    int K, N, d, iter;
+    int K, N, d, iter, i, j;
     double eps, **vectors, **centroids;
+    PyObject *vectors_obj, *centroids_obj, *vector, *centroid, *new_centroids_obj;
+
     printf("fit starting");
-    if(!PyArg_ParseTuple(args, "iiiidoo", &K, &N, &d, &iter, &eps, &vectors, &centroids)) {
+    if(!PyArg_ParseTuple(args, "iiiidOO", &K, &N, &d, &iter, &eps, &vectors_obj, &centroids_obj)) {
         printf("fit error");
         return NULL;
     }
     printf("fit ending");
-    return Py_BuildValue("o", kmeans(K, N, d, iter, eps, vectors, centroids));
+
+    printf("checking length");
+    if (PyObject_Length(vectors_obj) < 0 || PyObject_Length(centroids_obj) < 0) {
+      return NULL;
+    }
+
+    printf("memory vectors");
+    vectors = (double **)calloc(N, sizeof(double *));
+    if (vectors == NULL) {
+      return NULL;
+    }
+
+    printf("memory centroids");
+    centroids = (double **)calloc(K, sizeof(double *));
+    if (centroids == NULL) {
+      Py_DECREF(vectors_obj);
+      Py_DECREF(centroids_obj);
+      free(vectors);
+      return NULL;
+    }
+
+    printf("Building vectors");
+    for (i=0; i<N; i++) {
+      vector = PyList_GetItem(vectors_obj, i);
+      vectors[i] = calloc(d, sizeof(double));
+      if (vectors[i] == NULL) {
+        Py_DECREF(vector);
+        Py_DECREF(vectors_obj);
+        Py_DECREF(centroids_obj);
+        free_array_of_pointers(vectors, i);
+        free(centroids);
+        return NULL;
+      }
+      for (j=0; j<d; j++) {
+        vectors[i][j] = PyFloat_AsDouble(PyList_GetItem(vector, j));
+      }
+    }
+
+    printf("Building centroids");
+    for (i=0; i<K; i++) {
+      centroid = PyList_GetItem(centroids_obj, i);
+      centroids[i] = calloc(d, sizeof(double));
+      if (vectors[i] == NULL) {
+        Py_DECREF(vector);
+        Py_DECREF(centroid);
+        Py_DECREF(vectors_obj);
+        Py_DECREF(centroids_obj);
+        free_array_of_pointers(vectors, N);
+        free_array_of_pointers(centroids, i);
+        return NULL;
+      }
+      for (j=0; j<d; j++) {
+        centroids[i][j] = PyFloat_AsDouble(PyList_GetItem(centroid, j));
+      }
+    }
+    
+    printf("Before kmeans");
+    centroids = kmeans(K, N, d, iter, eps, vectors, centroids);
+    printf("After kmeans");
+    
+    Py_DECREF(vector);
+    Py_DECREF(centroid);
+    Py_DECREF(vectors_obj);
+    Py_DECREF(centroids_obj);
+
+    printf("convert_to_python_list before");
+    new_centroids_obj = convert_to_python_list(centroids, K, d);
+    printf("convert_to_python_list after");
+
+    if (new_centroids_obj == NULL) {
+      return NULL;
+    }
+    printf("Returning final value");
+    return Py_BuildValue("O", new_centroids_obj);
 }
 
 static PyMethodDef mykmeansspMethods[] = {
