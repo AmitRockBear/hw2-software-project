@@ -212,7 +212,7 @@ static PyObject* fit(PyObject *self, PyObject *args) {
     if (centroids == NULL) {
       // Py_DECREF(vectors_obj);
       // Py_DECREF(centroids_obj);
-      free(vectors);
+      // free(vectors);
       return NULL;
     }
 
@@ -224,8 +224,8 @@ static PyObject* fit(PyObject *self, PyObject *args) {
         // Py_DECREF(vector);
         // Py_DECREF(vectors_obj);
         // Py_DECREF(centroids_obj);
-        free_array_of_pointers(vectors, i);
-        free(centroids);
+        // free_array_of_pointers(vectors, i);
+        // free(centroids);
         return NULL;
       }
       for (j=0; j<d; j++) {
@@ -242,8 +242,8 @@ static PyObject* fit(PyObject *self, PyObject *args) {
         // Py_DECREF(centroid);
         // Py_DECREF(vectors_obj);
         // Py_DECREF(centroids_obj);
-        free_array_of_pointers(vectors, N);
-        free_array_of_pointers(centroids, i);
+        // free_array_of_pointers(vectors, N);
+        // free_array_of_pointers(centroids, i);
         return NULL;
       }
       for (j=0; j<d; j++) {
