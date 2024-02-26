@@ -63,10 +63,10 @@ def validate_files():
     file1_path_Ext = os.path.splitext(file_name_1)
     file2_path_Ext = os.path.splitext(file_name_2)
 
-    if file1_path_Ext[1] != ".txt" or \
-        file1_path_Ext[1] != ".csv" or \
-        file2_path_Ext[1] != ".txt" or \
-        file2_path_Ext[1] != ".csv":
+    if (file1_path_Ext[1] != ".txt" and \
+        file1_path_Ext[1] != ".csv") or \
+        (file2_path_Ext[1] != ".txt" and \
+        file2_path_Ext[1] != ".csv"):
         return
     
     return file_name_1, file_name_2
