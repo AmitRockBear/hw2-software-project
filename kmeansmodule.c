@@ -221,7 +221,6 @@ static PyObject* fit(PyObject *self, PyObject *args) {
       vector = PyList_GetItem(vectors_obj, i);
       vectors[i] = calloc(d, sizeof(double));
       if (vectors[i] == NULL) {
-        Py_DECREF(vector);
         Py_DECREF(vectors_obj);
         Py_DECREF(centroids_obj);
         free_array_of_pointers(vectors, i);
@@ -238,8 +237,6 @@ static PyObject* fit(PyObject *self, PyObject *args) {
       centroid = PyList_GetItem(centroids_obj, i);
       centroids[i] = calloc(d, sizeof(double));
       if (vectors[i] == NULL) {
-        Py_DECREF(vector);
-        Py_DECREF(centroid);
         Py_DECREF(vectors_obj);
         Py_DECREF(centroids_obj);
         free_array_of_pointers(vectors, N);
@@ -254,9 +251,7 @@ static PyObject* fit(PyObject *self, PyObject *args) {
     printf("Before kmeans");
     centroids = kmeans(K, N, d, iter, eps, vectors, centroids);
     printf("After kmeans");
-    
-    Py_DECREF(vector);
-    Py_DECREF(centroid);
+
     Py_DECREF(vectors_obj);
     Py_DECREF(centroids_obj);
 
