@@ -90,9 +90,9 @@ def init_centroids(vectors, centroids_num):
     probabilities = []
 
     for vector in vectors:
-      min_distance = distance(vector, centroids[0])
-      for k in range(k, i):
-        min_distance = min(min_distance, distance(vector, centroids[k]))
+      min_distance = distance(vector, centroids[0], len(vector))
+      for k in range(1, i):
+        min_distance = min(min_distance, distance(vector, centroids[k], len(vector)))
       probabilities.append(min_distance)
     
     sum = 0
@@ -118,15 +118,15 @@ def init_centroids(vectors, centroids_num):
 
   return centroids, centroids_indexes
 
-def kmeanspp(N, K, iter, eps, vectors, centroids):
+def call_c_kmeans(N, K, iter, eps, vectors, centroids):
     centroids = mykmeanssp.fit(N, K, iter, eps, vectors, centroids)
     if centroids == None:
         raise
     return centroids
 
 def get_keys_and_vectors_from_files(file_name_1, file_name_2):
-    data1 = pd.read_csv(file_name_1)
-    data2 = pd.read_csv(file_name_2)
+    data1 = pd.read_csv(file_name_1, header=None)
+    data2 = pd.read_csv(file_name_2, header=None)
     
     merged_data = pd.merge(data1, data2, on=data1.columns[0], how='inner')
     merged_data_sorted = merged_data.sort_values(by=merged_data.columns[0])
@@ -134,7 +134,7 @@ def get_keys_and_vectors_from_files(file_name_1, file_name_2):
 
     merged_data_sorted_without_first_column = merged_data_sorted.iloc[:, 1:]
     
-    keys = merged_data_sorted.iloc[:, 0].tonumpy()
+    keys = list(merged_data_sorted.iloc[:, 0])
     vectors = merged_data_sorted_without_first_column.to_numpy()
 
     return keys, vectors
@@ -145,7 +145,7 @@ def main(K, iter, eps, keys, vectors):
     np.random.choice()
     centroids, centroids_indexes = init_centroids(vectors, K)
     d = vectors.shape[1]
-    new_centroids = kmeanspp(K, len(vectors), d, iter, eps, vectors, centroids)
+    new_centroids = call_c_kmeans(K, len(vectors), d, iter, eps, vectors, centroids)
 
     centroids_keys = [keys[key_index] for key_index in centroids_indexes]
     print(','.join(centroids_keys))
@@ -162,7 +162,7 @@ if __name__ == "__main__":
             keys, vectors = get_keys_and_vectors_from_files(file_name_1, file_name_2)
             params_result = validate_params(len(vectors))
             if not params_result == None:
-                K, iter, eps, file_name_1, file_name_2 = params_result
+                K, iter, eps = params_result
                 main(K, iter, eps, keys, vectors)
     except:
          print("An Error Has Occurred")
