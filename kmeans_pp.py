@@ -80,8 +80,8 @@ def inner_join_files_data(filepath1, filepath2):
 def init_centroids(vectors, centroids_num):
   centroids = []
   centroids_indexes = []
-  shape = vectors.shape
-  vectors_num = shape[0]
+  shape = len(vectors[0])
+  vectors_num = len(vectors[0])
 
   chosen = np.random.choice(np.arange(0, vectors_num))
   centroids.append(vectors[chosen])
@@ -113,7 +113,7 @@ def init_centroids(vectors, centroids_num):
         chosen = j
         break
 
-    centroids.append(np.copy(vectors[chosen]))
+    centroids.append(vectors[chosen].copy())
     centroids_indexes.append(chosen)
 
   return centroids, centroids_indexes
@@ -135,16 +135,16 @@ def get_keys_and_vectors_from_files(file_name_1, file_name_2):
     merged_data_sorted_without_first_column = merged_data_sorted.iloc[:, 1:]
     
     keys = list(merged_data_sorted.iloc[:, 0])
-    vectors = merged_data_sorted_without_first_column.to_numpy()
+    vectors = merged_data_sorted_without_first_column.values.tolist()
 
     return keys, vectors
 
 def main(K, iter, eps, keys, vectors): 
-    dimension = vectors.shape[1]
+    dimension = len(vectors[0])
     np.random.seed(0)
     
     centroids, centroids_indexes = init_centroids(vectors, K)
-    d = vectors.shape[1]
+    d = len(vectors[0])
     new_centroids = call_c_kmeans(K, len(vectors), d, iter, eps, vectors, centroids)
     centroids_keys = [keys[key_index] for key_index in centroids_indexes]
     print(','.join(centroids_keys))
