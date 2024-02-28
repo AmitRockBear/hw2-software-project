@@ -269,7 +269,7 @@ static PyObject* fit(PyObject *self, PyObject *args) {
       return NULL;
     }
     printf("Returning final value\n");
-    return new_centroids_obj
+    return new_centroids_obj;
 }
 
 static PyMethodDef mykmeansspMethods[] = {
