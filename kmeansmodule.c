@@ -157,19 +157,20 @@ double** kmeans(int K, int N, int d, int iter, double eps, double** vectors, dou
 }
 
 static PyObject* convert_to_python_list(double **array, int rows, int cols) {
+    int i, j;
     PyObject *outer_list, *inner_list, *value;
     outer_list = PyList_New(rows);
     if (outer_list == NULL) {
       return NULL;
     }
 
-    for (int i = 0; i < rows; i++) {
+    for (i = 0; i < rows; i++) {
         inner_list = PyList_New(cols);
         if (inner_list == NULL) {
             // Py_DECREF(outer_list);
             return NULL;
         }
-        for (int j = 0; j < cols; j++) {
+        for (j = 0; j < cols; j++) {
             value = PyFloat_FromDouble(array[i][j]);
             if (value == NULL) {
                 // Py_DECREF(inner_list);
@@ -268,7 +269,7 @@ static PyObject* fit(PyObject *self, PyObject *args) {
       return NULL;
     }
     printf("Returning final value\n");
-    return Py_BuildValue("O", new_centroids_obj);
+    return new_centroids_obj
 }
 
 static PyMethodDef mykmeansspMethods[] = {
