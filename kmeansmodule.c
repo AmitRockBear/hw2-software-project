@@ -17,13 +17,13 @@ void free_array_of_pointers(double** arr, int length) {
 double calculate_distance(double* vec1, double* vec2, int size) {
   int i;
   double sum;
-  printf("calculate_distance starting\n");
+  // printf("calculate_distance starting\n");
   
   sum = 0;
   for (i=0; i<size; i++) {
     sum += pow(vec1[i]-vec2[i], 2);
   }
-  printf("calculate_distance ending\n");
+  // printf("calculate_distance ending\n");
 
   return sqrt(sum);
 }
@@ -181,7 +181,7 @@ static PyObject* convert_to_python_list(double **array, int rows, int cols) {
         }
         PyList_SET_ITEM(outer_list, i, inner_list);
     }
-
+    printf("Returning outer list");
     return outer_list;
 }
 
@@ -190,25 +190,25 @@ static PyObject* fit(PyObject *self, PyObject *args) {
     double eps, **vectors, **centroids;
     PyObject *vectors_obj, *centroids_obj, *vector, *centroid, *new_centroids_obj;
 
-    printf("fit starting\n");
+    // printf("fit starting\n");
     if(!PyArg_ParseTuple(args, "iiiidOO", &K, &N, &d, &iter, &eps, &vectors_obj, &centroids_obj)) {
         printf("fit error\n");
         return NULL;
     }
-    printf("fit ending");
+    // printf("fit ending");
 
-    printf("checking length\n");
+    // printf("checking length\n");
     if (PyObject_Length(vectors_obj) < 0 || PyObject_Length(centroids_obj) < 0) {
       return NULL;
     }
 
-    printf("memory vectors\n");
+    // printf("memory vectors\n");
     vectors = (double **)calloc(N, sizeof(double *));
     if (vectors == NULL) {
       return NULL;
     }
 
-    printf("memory centroids\n");
+    // printf("memory centroids\n");
     centroids = (double **)calloc(K, sizeof(double *));
     if (centroids == NULL) {
       // Py_DECREF(vectors_obj);
@@ -217,7 +217,7 @@ static PyObject* fit(PyObject *self, PyObject *args) {
       return NULL;
     }
 
-    printf("Building vectors\n");
+    // printf("Building vectors\n");
     for (i=0; i<N; i++) {
       vector = PyList_GetItem(vectors_obj, i);
       vectors[i] = calloc(d, sizeof(double));
@@ -234,7 +234,7 @@ static PyObject* fit(PyObject *self, PyObject *args) {
       }
     }
 
-    printf("Building centroids\n");
+    // printf("Building centroids\n");
     for (i=0; i<K; i++) {
       centroid = PyList_GetItem(centroids_obj, i);
       centroids[i] = calloc(d, sizeof(double));
@@ -252,22 +252,24 @@ static PyObject* fit(PyObject *self, PyObject *args) {
       }
     }
     
-    printf("Before kmeans\n");
+    // printf("Before kmeans\n");
     centroids = kmeans(K, N, d, iter, eps, vectors, centroids);
-    printf("After kmeans\n");
+    // printf("After kmeans\n");
     
     // Py_DECREF(vector);
     // Py_DECREF(centroid);
     // Py_DECREF(vectors_obj);
     // Py_DECREF(centroids_obj);
 
-    printf("convert_to_python_list before\n");
+    // printf("convert_to_python_list before\n");
     new_centroids_obj = convert_to_python_list(centroids, K, d);
-    printf("convert_to_python_list after\n");
+    // printf("convert_to_python_list after\n");
 
     if (new_centroids_obj == NULL) {
       return NULL;
     }
+    printf("%ld", PyObject_Length(new_centroids_obj));
+
     printf("Returning final value\n");
     return new_centroids_obj;
 }
