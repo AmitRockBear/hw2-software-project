@@ -3,7 +3,6 @@ import os
 import pandas as pd
 import numpy as np
 import math
-import mykmeanssp
 
 def distance(vector1, vector2, d):
     sum = 0
@@ -71,17 +70,11 @@ def validate_files():
     
     return file_name_1, file_name_2
 
-def inner_join_files_data(filepath1, filepath2):
-    data1 = pd.read_csv(filepath1)
-    data2 = pd.read_csv(filepath2)
-    merged_data = pd.merge(data1, data2, how='inner', on=data1.columns[0])
-    return merged_data
-
 def init_centroids(vectors, centroids_num):
   centroids = []
   centroids_indexes = []
-  shape = len(vectors[0])
-  vectors_num = len(vectors[0])
+
+  vectors_num = len(vectors)
 
   chosen = np.random.choice(np.arange(0, vectors_num))
   centroids.append(vectors[chosen])
@@ -95,23 +88,10 @@ def init_centroids(vectors, centroids_num):
         min_distance = min(min_distance, distance(vector, centroids[k], len(vector)))
       probabilities.append(min_distance)
     
-    sum = 0
-    for p in probabilities:
-      sum += p
-    
-    for j in range(vectors_num):
-      probabilities[j] = probabilities[j] / sum
+    distances_sum = sum(probabilities)
+    probabilities = [p / distances_sum for p in probabilities]
 
-    sum = 0
-    for j in range(vectors_num):
-      sum = sum + probabilities[j]
-      probabilities[j] = sum
-
-    random_number = np.random.choice([0, 1])
-    for j in range(vectors_num):
-      if random_number < probabilities[j]:
-        chosen = j
-        break
+    chosen = np.random.choice(vectors_num, p=probabilities)
 
     centroids.append(vectors[chosen].copy())
     centroids_indexes.append(chosen)
@@ -124,30 +104,29 @@ def call_c_kmeans(K, N, d, iter, eps, vectors, centroids):
         raise
     return centroids
 
-def get_keys_and_vectors_from_files(file_name_1, file_name_2):
+def get_vectors_from_files(file_name_1, file_name_2):
     data1 = pd.read_csv(file_name_1, header=None)
     data2 = pd.read_csv(file_name_2, header=None)
-    
+
     merged_data = pd.merge(data1, data2, on=data1.columns[0], how='inner')
+
     merged_data_sorted = merged_data.sort_values(by=merged_data.columns[0])
     merged_data_sorted = merged_data_sorted.astype(float)
 
     merged_data_sorted_without_first_column = merged_data_sorted.iloc[:, 1:]
-    
-    keys = list(merged_data_sorted.iloc[:, 0])
     vectors = merged_data_sorted_without_first_column.values.tolist()
 
-    return keys, vectors
+    return vectors
 
-def main(K, iter, eps, keys, vectors): 
+def main(K, iter, eps, vectors): 
     dimension = len(vectors[0])
     np.random.seed(0)
     
     centroids, centroids_indexes = init_centroids(vectors, K)
     d = len(vectors[0])
     new_centroids = call_c_kmeans(K, len(vectors), d, iter, eps, vectors, centroids)
-    centroids_keys = [keys[key_index] for key_index in centroids_indexes]
-    print(','.join(centroids_keys))
+
+    print(','.join(centroids_indexes))
     for item in new_centroids:
         print(','.join(["%.4f" % num for num in item]))
 
@@ -158,10 +137,10 @@ if __name__ == "__main__":
         files_result = validate_files()
         if not files_result == None:
             file_name_1, file_name_2 = files_result
-            keys, vectors = get_keys_and_vectors_from_files(file_name_1, file_name_2)
+            vectors = get_vectors_from_files(file_name_1, file_name_2)
             params_result = validate_params(len(vectors))
             if not params_result == None:
                 K, iter, eps = params_result
-                main(K, iter, eps, keys, vectors)
+                main(K, iter, eps, vectors)
     except:
          print("An Error Has Occurred")
