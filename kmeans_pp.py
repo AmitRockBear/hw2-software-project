@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import numpy as np
 import math
-import kmeans_pp
+import mykmeanssp
 
 def distance(vector1, vector2, d):
     sum = 0
@@ -102,7 +102,7 @@ def init_centroids(vectors, centroids_num):
 def call_c_kmeans(K, N, d, iter, eps, vectors, centroids):
     centroids = mykmeanssp.fit(K, N, d, iter, eps, vectors, centroids)
     if centroids == None:
-        raise
+      raise
     return centroids
 
 def get_vectors_from_files(file_name_1, file_name_2):
@@ -126,8 +126,7 @@ def main(K, iter, eps, vectors):
     centroids, centroids_indexes = init_centroids(vectors, K)
     d = len(vectors[0])
     new_centroids = call_c_kmeans(K, len(vectors), d, iter, eps, vectors, centroids)
-
-    print(','.join(centroids_indexes))
+    print(','.join([str(c) for c in centroids_indexes]))
     for item in new_centroids:
         print(','.join(["%.4f" % num for num in item]))
 
