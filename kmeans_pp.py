@@ -127,6 +127,7 @@ def main(K, iter, eps, vectors):
     d = len(vectors[0])
     new_centroids = call_c_kmeans(K, len(vectors), d, iter, eps, vectors, centroids)
     print(','.join([str(c) for c in centroids_indexes]))
+
     for item in new_centroids:
         print(','.join(["%.4f" % num for num in item]))
 

@@ -17,13 +17,11 @@ void free_array_of_pointers(double** arr, int length) {
 double calculate_distance(double* vec1, double* vec2, int size) {
   int i;
   double sum;
-  // //printf("calculate_distance starting\n");
   
   sum = 0;
   for (i=0; i<size; i++) {
     sum += pow(vec1[i]-vec2[i], 2);
   }
-  // //printf("calculate_distance ending\n");
 
   return sqrt(sum);
 }
@@ -31,7 +29,6 @@ double calculate_distance(double* vec1, double* vec2, int size) {
 int find_closest_centroid_to_vector_index(double* vector, int vector_size, double** centroids, int centroids_num) {
   int j, min_j;
   double min_distance, distance_from_centroid;
-  //printf("find_closest_centroid_to_vector_index starting\n");
 
   min_j = 0;
   min_distance = calculate_distance(vector, centroids[0], vector_size);
@@ -43,7 +40,6 @@ int find_closest_centroid_to_vector_index(double* vector, int vector_size, doubl
       min_j = j;
     }
   }
-  //printf("find_closest_centroid_to_vector_index ending\n");
 
   return min_j;
 }
@@ -51,11 +47,9 @@ int find_closest_centroid_to_vector_index(double* vector, int vector_size, doubl
 double* create_new_centroid(double* centroid_sum, int centroid_counter, int centroid_size) {
   int p;
   double *new_centroid;
-  //printf("create_new_centroid starting\n");
 
   new_centroid = calloc(centroid_size, sizeof(double));
   if (new_centroid == NULL) {
-  //printf("create_new_centroid new_centroid == NULL error\n");
 
       return NULL;
   }
@@ -63,7 +57,6 @@ double* create_new_centroid(double* centroid_sum, int centroid_counter, int cent
   for (p=0; p<centroid_size; p++) {
     new_centroid[p] = centroid_sum[p] / centroid_counter;
   }
-  //printf("create_new_centroid ending\n");
 
   return new_centroid;
 }
@@ -73,18 +66,15 @@ int calculate_centroids_convergence(double** centroids, double** vectors, int ce
   double max_distance, centroids_distance, **centroids_sum, *counters, *new_centroid_j;
   max_distance = eps + 1;
   iter_couter = 0;
-  //printf("calculate_centroids_convergence starting\n");
 
   while (max_distance >= eps && iter_couter < max_iterations) {
     max_distance = 0;
     centroids_sum = (double**)calloc(centroids_num, sizeof(double *));
     if (centroids_sum == NULL) {
-      //printf("calculate_centroids_convergence centroids_sum == NULL failed\n");
       return 1;
     }
     counters = (double*)calloc(centroids_num, sizeof(double));
     if (counters == NULL) {
-      //printf("calculate_centroids_convergence counters == NULL failed\n");
       free(centroids_sum);
       return 1;
     }
@@ -93,7 +83,6 @@ int calculate_centroids_convergence(double** centroids, double** vectors, int ce
       centroids_sum[j] = calloc(centroid_size, sizeof(double));
 
       if (centroids_sum[j] == NULL) {
-        //printf("calculate_centroids_convergence centroids_sum[j] == NULL failed\n");
         free_array_of_pointers(centroids_sum, j);
         free(counters);
         return 1;
@@ -114,7 +103,6 @@ int calculate_centroids_convergence(double** centroids, double** vectors, int ce
         new_centroid_j = create_new_centroid(centroids_sum[j], counters[j], centroid_size);
 
         if (new_centroid_j == NULL) {
-          //printf("calculate_centroids_convergence new_centroid_j == NULL failed\n");
           free_array_of_pointers(centroids_sum, centroids_num);
           free(counters);
           return 1;
@@ -128,7 +116,6 @@ int calculate_centroids_convergence(double** centroids, double** vectors, int ce
         centroids[j]= new_centroid_j;
       }
     }
-    //printf("calculate_centroids_convergence freeing memory in end of iteration for loop\n");
     free_array_of_pointers(centroids_sum, centroids_num);
     free(counters);
 
@@ -140,18 +127,14 @@ int calculate_centroids_convergence(double** centroids, double** vectors, int ce
 
 double** kmeans(int K, int N, int d, int iter, double eps, double** vectors, double** centroids) {
     int res;
-    //printf("kmeans starting\n");
 
     res = calculate_centroids_convergence(centroids, vectors, K, d, N, iter, eps);
     if (res == 1) {
-      //printf("kmeans error\n");
       free_array_of_pointers(vectors, N);
       free_array_of_pointers(centroids, K);
       return NULL;
     }
-    //printf("kmeans freeing pointers\n");
     free_array_of_pointers(vectors, N);
-    //printf("kmeans returning\n");
 
     return centroids;
 }
@@ -166,14 +149,14 @@ static PyObject* convert_to_python_list(double **array, int rows, int cols) {
     for (int i = 0; i < rows; i++) {
         inner_list = PyList_New(cols);
         if (inner_list == NULL) {
-            // Py_DECREF(outer_list);
+            //Py_DECREF(outer_list);
             return NULL;
         }
         for (int j = 0; j < cols; j++) {
             value = PyFloat_FromDouble(array[i][j]);
             if (value == NULL) {
-                // Py_DECREF(inner_list);
-                // Py_DECREF(outer_list);
+                //Py_DECREF(inner_list);
+                //Py_DECREF(outer_list);
                 return NULL;
             }
             PyList_SET_ITEM(inner_list, j, value);
@@ -185,48 +168,40 @@ static PyObject* convert_to_python_list(double **array, int rows, int cols) {
 }
 
 static PyObject* fit(PyObject *self, PyObject *args) {
-    //printf("Entered C");
     int K, N, d, iter, i, j;
     double eps, **vectors, **centroids;
     PyObject *vectors_obj, *centroids_obj, *vector, *centroid, *new_centroids_obj;
 
-    //printf("fit starting\n");
     if(!PyArg_ParseTuple(args, "iiiidOO", &K, &N, &d, &iter, &eps, &vectors_obj, &centroids_obj)) {
-        //printf("fit error\n");
         return NULL;
     }
-    //printf("fit ending");
 
-    //printf("checking length\n");
     if (PyObject_Length(vectors_obj) < 0 || PyObject_Length(centroids_obj) < 0) {
       return NULL;
     }
 
-    //printf("memory vectors\n");
     vectors = (double **)calloc(N, sizeof(double *));
     if (vectors == NULL) {
       return NULL;
     }
 
-    //printf("memory centroids\n");
     centroids = (double **)calloc(K, sizeof(double *));
     if (centroids == NULL) {
-      // Py_DECREF(vectors_obj);
-      // Py_DECREF(centroids_obj);
-      // free(vectors);
+      Py_DECREF(vectors_obj);
+      Py_DECREF(centroids_obj);
+      free(vectors);
       return NULL;
     }
 
-    //printf("Building vectors\n");
     for (i=0; i<N; i++) {
       vector = PyList_GetItem(vectors_obj, i);
       vectors[i] = calloc(d, sizeof(double));
       if (vectors[i] == NULL) {
-        // Py_DECREF(vector);
-        // Py_DECREF(vectors_obj);
-        // Py_DECREF(centroids_obj);
-        // free_array_of_pointers(vectors, i);
-        // free(centroids);
+        Py_DECREF(vector);
+        Py_DECREF(vectors_obj);
+        Py_DECREF(centroids_obj);
+        free_array_of_pointers(vectors, i);
+        free(centroids);
         return NULL;
       }
       for (j=0; j<d; j++) {
@@ -234,17 +209,16 @@ static PyObject* fit(PyObject *self, PyObject *args) {
       }
     }
 
-    //printf("Building centroids\n");
     for (i=0; i<K; i++) {
       centroid = PyList_GetItem(centroids_obj, i);
       centroids[i] = calloc(d, sizeof(double));
       if (vectors[i] == NULL) {
-        // Py_DECREF(vector);
-        // Py_DECREF(centroid);
-        // Py_DECREF(vectors_obj);
-        // Py_DECREF(centroids_obj);
-        // free_array_of_pointers(vectors, N);
-        // free_array_of_pointers(centroids, i);
+        Py_DECREF(vector);
+        Py_DECREF(centroid);
+        Py_DECREF(vectors_obj);
+        Py_DECREF(centroids_obj);
+        free_array_of_pointers(vectors, N);
+        free_array_of_pointers(centroids, i);
         return NULL;
       }
       for (j=0; j<d; j++) {
@@ -252,23 +226,19 @@ static PyObject* fit(PyObject *self, PyObject *args) {
       }
     }
     
-    //printf("Before kmeans\n");
     centroids = kmeans(K, N, d, iter, eps, vectors, centroids);
-    //printf("After kmeans\n");
     
-    // Py_DECREF(vector);
-    // Py_DECREF(centroid);
-    // Py_DECREF(vectors_obj);
-    // Py_DECREF(centroids_obj);
-
-    //printf("convert_to_python_list before\n");
     new_centroids_obj = convert_to_python_list(centroids, K, d);
-    //printf("convert_to_python_list after\n");
 
+    Py_DECREF(vector);
+    Py_DECREF(centroid);
+    Py_DECREF(vectors_obj);
+    Py_DECREF(centroids_obj);
+    
     if (new_centroids_obj == NULL) {
       return NULL;
     }
-    printf("Returning final value\n");
+
     return new_centroids_obj;
 }
 
@@ -303,14 +273,11 @@ static struct PyModuleDef mykmeansspModule = {
 
 PyMODINIT_FUNC PyInit_mykmeanssp(void)
 {
-    //printf("PyInit_mykmeanssp starting\n");
     PyObject *m;
     m = PyModule_Create(&mykmeansspModule);
     if (!m) {
-        //printf("PyInit_mykmeanssp error\n");
         return NULL;
     }
-    //printf("PyInit_mykmeanssp ending\n");
     return m;
 }
 
