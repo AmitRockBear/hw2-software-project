@@ -197,7 +197,7 @@ static PyObject* fit(PyObject *self, PyObject *args) {
     printf("fit ending");
 
     printf("checking length\n");
-    if (PyObject_Length(vectors_obj) < 0 || PyObject_Length(centroids_obj) < 0) {
+    /*if (PyObject_Length(vectors_obj) < 0 || PyObject_Length(centroids_obj) < 0) {
       return NULL;
     }
 
@@ -267,7 +267,8 @@ static PyObject* fit(PyObject *self, PyObject *args) {
     if (new_centroids_obj == NULL) {
       return NULL;
     }
-    printf("Returning final value\n");
+    printf("Returning final value\n");*/
+    return;
     return Py_BuildValue("O", new_centroids_obj);
 }
 
