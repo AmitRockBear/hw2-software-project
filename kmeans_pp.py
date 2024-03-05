@@ -32,7 +32,7 @@ def validate_params(N):
     else:
         eps = float(sys.argv[2])
     
-    if eps <= 0:
+    if eps < 0:
       raise
 
     if (K <= 1 or K >=N):
