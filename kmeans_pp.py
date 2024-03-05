@@ -26,14 +26,14 @@ def validate_params(N):
             print("Invalid maximum iteration!")
             return
     
-    try:
-        if len(sys.argv) == 6:
-            eps = float(sys.argv[3])
-        else:
-            eps = float(sys.argv[2])
-    except ValueError:
-        # add restriction on eps
-        return
+
+    if len(sys.argv) == 6:
+        eps = float(sys.argv[3])
+    else:
+        eps = float(sys.argv[2])
+    
+    if eps <= 0:
+      raise
 
     if (K <= 1 or K >=N):
         print("Invalid number of clusters!")
@@ -44,21 +44,15 @@ def validate_params(N):
     return K, iter, eps
     
 def validate_files():
-    try:
-        if len(sys.argv) == 6:
-            file_name_1 = str(sys.argv[4])
-        else:
-            file_name_1 = str(sys.argv[3])
-    except ValueError:
-        return
+    if len(sys.argv) == 6:
+        file_name_1 = str(sys.argv[4])
+    else:
+        file_name_1 = str(sys.argv[3])
 
-    try:
-        if len(sys.argv) == 6:
-            file_name_2 = str(sys.argv[5])
-        else:
-            file_name_2 = str(sys.argv[4])
-    except ValueError:
-        return
+    if len(sys.argv) == 6:
+        file_name_2 = str(sys.argv[5])
+    else:
+        file_name_2 = str(sys.argv[4])
 
     file1_path_Ext = os.path.splitext(file_name_1)
     file2_path_Ext = os.path.splitext(file_name_2)
@@ -67,7 +61,7 @@ def validate_files():
         file1_path_Ext[1] != ".csv") or \
         (file2_path_Ext[1] != ".txt" and \
         file2_path_Ext[1] != ".csv"):
-        return
+        raise
     
     return file_name_1, file_name_2
 
