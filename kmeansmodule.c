@@ -240,11 +240,8 @@ static PyObject* fit(PyObject *self, PyObject *args) {
     Py_DECREF(centroid);
     Py_DECREF(vectors_obj);
     Py_DECREF(centroids_obj);
-    // free_array_of_pointers(vectors, N);
-    
-    if (new_centroids_obj == NULL) {
-      return NULL;
-    }
+    free_array_of_pointers(vectors, N);
+    free_array_of_pointers(centroids, K);
 
     return new_centroids_obj;
 }
