@@ -33,7 +33,7 @@ def validate_params(N):
         eps = float(sys.argv[2])
     
     if eps < 0:
-      raise
+      print("Invalid epsilon!")
 
     if (K <= 1 or K >=N):
         print("Invalid number of clusters!")
