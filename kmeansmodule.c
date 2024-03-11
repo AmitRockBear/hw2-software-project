@@ -168,6 +168,9 @@ static PyObject* fit(PyObject *self, PyObject *args) {
     int K, N, d, iter, i, j;
     double eps, **vectors, **centroids;
     PyObject *vectors_obj, *centroids_obj, *vector, *centroid, *new_centroids_obj;
+    
+    vector = NULL;
+    centroid = NULL;
 
     if(!PyArg_ParseTuple(args, "iiiidOO", &K, &N, &d, &iter, &eps, &vectors_obj, &centroids_obj)) {
         return NULL;
