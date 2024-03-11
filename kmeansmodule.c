@@ -61,8 +61,8 @@ double* create_new_centroid(double* centroid_sum, int centroid_counter, int cent
 }
 
 int calculate_centroids_convergence(double** centroids, double** vectors, int centroids_num, int centroid_size, int vectors_num, int max_iterations, double eps) {
-  int iter_couter, closest_centroid_index, i, j, p;
-  double max_distance, centroids_distance, **centroids_sum, *counters, *new_centroid_j;
+  int iter_couter, closest_centroid_index, i, j, p, *counters;
+  double max_distance, centroids_distance, **centroids_sum, *new_centroid_j;
   max_distance = eps + 1;
   iter_couter = 0;
 
@@ -72,7 +72,7 @@ int calculate_centroids_convergence(double** centroids, double** vectors, int ce
     if (centroids_sum == NULL) {
       return 1;
     }
-    counters = (double*)calloc(centroids_num, sizeof(double));
+    counters = (int*)calloc(centroids_num, sizeof(int));
     if (counters == NULL) {
       free(centroids_sum);
       return 1;
